@@ -69,3 +69,32 @@ class Database{
 
 ```
 
+## Creating a new user (Registration endpoint)
+- In your project folder cretae a new file **register.php**
+- This is the endpoint needed to create new users and add them to your database
+
+```
+\\ Headers. This endpoint will only be able to accept JSON data
+<?php
+header("Access-Control-Allow-Origin: http://localhost/");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Max-Age: 3600");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+include_once 'config/database.php'; //connects us to the database
+include_once 'objects/user.php'; // connects us to our object user
+$database = new Database(); //gets the database connection
+$db = $database->getConnection();
+$user = new User($db); //this creates the object instance
+ 
+// get posted data
+$data = json_decode(file_get_contents("php://input"));
+ 
+// assiginin values. Gets data from users and assign them to the different fields the api is expected to call and send to the database
+$user->name = $data->name; 
+$user->email = $data->email;
+$user->password = $data->password;
+ 
+```
+ 
