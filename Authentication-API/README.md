@@ -202,5 +202,10 @@ function emailExists(){
 ?>
 
 ```
-Screenshots
-![alt text](https://github.com/[genesdemon]/[PHP-Broilllerr-plate-lmao]/blob/[master]/[images]/img1.png?raw=true)
+- Screenshots
+<img
+src=“images/img1.png”
+raw=true
+alt=“Subject Pronouns”
+style=“margin-right: 10px;”
+/>
