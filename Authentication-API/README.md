@@ -23,7 +23,8 @@
 - Create fields - id, name, email, hobby, token, isVerified, forget_pass_identity, password, created, modified
 - Do not forget to make id your primary key and add auto-increment as well.
 
-- CREATE TABLE `users` (
+```
+ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `name` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -35,6 +36,7 @@
   `modified` timestamp NOT NULL DEFAULT current_timestamp(),
   `forgot_pass_identity` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
 
 ## Project set up
 - If you're using XAMPP, you must create it inside the htdocs folder. 
@@ -44,7 +46,8 @@
 - This file basically conects your php code to your database so you should always put your correct server details
 - it should contain the code below:
 
-- <?php
+```
+<?php
 class Database{
 // put your own details 
     private $host = "localhost";
@@ -52,8 +55,6 @@ class Database{
     private $username = "root";  // your username
     private $password = "";      //password
     public $conn;
- 
-
     public function getConnection(){
         $this->conn = null;
      try{
@@ -66,4 +67,5 @@ class Database{
 }
 ?>
 
+```
 
