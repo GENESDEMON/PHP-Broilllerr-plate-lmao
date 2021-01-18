@@ -203,4 +203,4 @@ function emailExists(){
 
 ```
 Screenshots
-![alt text](https://github.com/[genesdemon]/[PHP-Broilllerr-plate-lmao]/blob/[master]/[images]/img1.jpg?raw=true)
+![alt text](https://github.com/[genesdemon]/[PHP-Broilllerr-plate-lmao]/blob/[master]/[images]/img1.png?raw=true)
