@@ -82,7 +82,7 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-include_once 'config/database.php'; //connects us to the database
+include_once 'config/db.php'; //connects us to the database
 include_once 'objects/user.php'; // connects us to our object user
 $database = new Database(); //gets the database connection
 $db = $database->getConnection();
@@ -95,6 +95,110 @@ $data = json_decode(file_get_contents("php://input"));
 $user->name = $data->name; 
 $user->email = $data->email;
 $user->password = $data->password;
+$email_exists = $user->emailExists();
+
+//regex to check password strength
+//This condition checks the password format
+$containsLetter  = preg_match('/[a-zA-Z]/',    $user->password); //checks if it contains letters
+$containsDigit   = preg_match('/\d/',          $user->password); //checks if it digits letters
+$containsSpecial = preg_match('/[^a-zA-Z\d]/', $user->password); //checks if it special characeter letters
  
+// calling the create method from the user class
+if($email_exists){ //check if a user already has that email address
+    http_response_code(401);
+    exit(json_encode(array("message" => "Email already exists")));	
+}elseif (strlen($user->password) < 8) { 
+    exit(json_encode(array("message" => "Password must be at least 8 characters")));	
+}elseif (!$containsLetter or !$containsDigit or !$containsSpecial) {
+    exit(json_encode(array("message" => "Password must contain letters, number and special characters")));	
+} else {
+if(
+    !empty($user->name) &&
+    !empty($user->email) &&
+    !empty($user->password) &&
+    $user->create()
+){
+ 
+    // set response code (This is what tells if the registration was successful or not)
+    http_response_code(200);
+    echo json_encode(array("message" => "User was created."));
+}
+else{
+    http_response_code(400);
+    echo json_encode(array("message" => "Ooops.User not."));
+}}
+?>
 ```
  
+ ## Create a User class
+ - The above code is not going to work without this class
+ - Remeber this line  **include_once 'objects/user.php';** it isn't going to work without creating this class
+ - Let's create this class!
+ - Cretae a folder **objects** in your project directory
+ - Create a file in it and nme it **user.php**
+ - The file will contain the code below
+
+```
+<?php
+class User{
+	private $conn;
+    private $table_name = "users"; // this connects to the table we created in our database
+	public $id;
+	public $name;
+	public $password;
+	
+
+	public function __construct($db){
+		$this->conn = $db;
+	}
+
+// create() method for creating a new user
+function create(){
+	$query = "INSERT INTO " . $this->table_name . "
+            SET
+				name = :name,
+				email = :email,
+                password = :password";
+
+	$stmt = $this->conn->prepare($query);
+	$this->name = strtolower(htmlspecialchars(strip_tags($this->name)));
+	$this->email=htmlspecialchars(strip_tags($this->email));
+    $this->password=htmlspecialchars(strip_tags($this->password));
+
+	$stmt->bindParam(':name', $this->name);
+	$stmt->bindParam(':email', $this->email);
+	$password_hash = password_hash($this->password, PASSWORD_BCRYPT); //encrypts the password before sending to the database, hence keeping it safe
+    $stmt->bindParam(':password', $password_hash);
+	if($stmt->execute()){
+		return true;
+	}
+	return false;
+}
+
+// emailExists() method for login and registration. This checks if there is a user in the database with the eneterd email address
+function emailExists(){
+	$query = "SELECT id, name,  password
+			FROM " . $this->table_name . "	WHERE email = ?
+            LIMIT 0,1";
+            
+	$stmt = $this->conn->prepare( $query );
+	$this->email=htmlspecialchars(strip_tags($this->email));
+	$stmt->bindParam(1, $this->email);
+	$stmt->execute();
+	$num = $stmt->rowCount();
+
+	// if email exists, assign values to object properties for easy access and use for php sessions
+	if($num>0){
+		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+		$this->id = $row['id'];
+		$this->name = $row['name'];
+        $this->password = $row['password'];
+		return true;
+	}
+	return false;
+}
+
+}
+?>
+
+```
